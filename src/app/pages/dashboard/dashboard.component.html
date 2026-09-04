@@ -1,0 +1,177 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Centre Operations Dashboard</h1>
+      <p class="page-subtitle">Real-time metrics for {{ centreInfo?.centreName || 'Assigned Procurement Centre' }}</p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <button (click)="manualRefresh()" class="btn btn-secondary btn-sm" [disabled]="refreshing">
+        <span>🔄</span> {{ refreshing ? 'Polling...' : 'Refresh Live Data' }}
+      </button>
+      <div class="date-badge">
+        <span>📅 Today: {{ todayDate }}</span>
+      </div>
+    </div>
+  </div>
+
+  @if (centreInfo?.currentStatus === 'CLOSED' || centreInfo?.currentStatus === 'SUSPENDED') {
+    <div class="alert alert-danger mb-6" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #991b1b; padding: 1.25rem; border-radius: 10px; display: flex; align-items: center; gap: 1rem;">
+      <span style="font-size: 2rem;">🚫</span>
+      <div>
+        <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700;">CENTRE {{ centreInfo?.currentStatus }} — Intake Suspended</h4>
+        <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem;">
+          This procurement centre has been marked <strong>{{ centreInfo?.currentStatus }}</strong> by Government Administration. Operational intake and queue calling are temporarily disabled.
+        </p>
+      </div>
+    </div>
+  }
+
+  <!-- Centre Overview Card -->
+  <div class="card centre-banner mb-6">
+    <div class="banner-content">
+      <div class="centre-main">
+        <span class="centre-icon">🏛️</span>
+        <div>
+          <h2>{{ centreInfo?.centreName || 'AgriProcure Centre' }}</h2>
+          <p class="location">{{ centreInfo?.district }}, {{ centreInfo?.state }} — Code: {{ centreInfo?.centreCode }}</p>
+        </div>
+      </div>
+      <div class="banner-stats">
+        <div class="stat-pill">
+          <span class="stat-lbl">Daily Capacity</span>
+          <span class="stat-val">{{ centreInfo?.dailyCapacity || 100 }} Quintals</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-lbl">Operating Status</span>
+          <span class="badge"
+                [class.badge-emerald]="centreInfo?.currentStatus === 'OPEN' || centreInfo?.currentStatus === 'OPERATIONAL'"
+                [class.badge-danger]="centreInfo?.currentStatus === 'CLOSED' || centreInfo?.currentStatus === 'SUSPENDED'"
+                [class.badge-warning]="centreInfo?.currentStatus === 'MAINTENANCE'">
+            {{ centreInfo?.currentStatus || 'OPEN' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metrics Grid -->
+  <div class="metrics-grid mb-6">
+    <div class="card metric-card">
+      <div class="metric-icon icon-emerald">📅</div>
+      <div class="metric-info">
+        <span class="metric-label">Today's Slots</span>
+        <span class="metric-value">{{ todaySlotsCount }}</span>
+        <span class="metric-sub">Booked for {{ todayDate }}</span>
+      </div>
+    </div>
+
+    <div class="card metric-card">
+      <div class="metric-icon icon-warning">⏳</div>
+      <div class="metric-info">
+        <span class="metric-label">Farmers Waiting</span>
+        <span class="metric-value">{{ waitingFarmersCount }}</span>
+        <span class="metric-sub">In queue at centre</span>
+      </div>
+    </div>
+
+    <div class="card metric-card">
+      <div class="metric-icon icon-info">⚡</div>
+      <div class="metric-info">
+        <span class="metric-label">Active Queue</span>
+        <span class="metric-value">{{ inProcessCount }}</span>
+        <span class="metric-sub">Being processed now</span>
+      </div>
+    </div>
+
+    <div class="card metric-card">
+      <div class="metric-icon icon-success">✅</div>
+      <div class="metric-info">
+        <span class="metric-label">Completed Today</span>
+        <span class="metric-value">{{ completedProcurementCount }}</span>
+        <span class="metric-sub">Procurement finalized</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Metrics & Quick Actions -->
+  <div class="dashboard-grid">
+    <!-- Live Queue Section -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Live Queue Status</h3>
+        <a routerLink="/queue" class="btn btn-secondary btn-sm">Manage Queue →</a>
+      </div>
+
+      @if (todayQueue.length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">📋</span>
+          <p>No active token queue records for today yet.</p>
+          <a routerLink="/queue" class="btn btn-primary btn-sm mt-2">Open Live Queue</a>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Token #</th>
+                <th>Farmer Name</th>
+                <th>Crop</th>
+                <th>Quantity</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of todayQueue.slice(0, 5); track item.id) {
+                <tr>
+                  <td><strong>{{ item.tokenNumber }}</strong></td>
+                  <td>{{ item.farmerName }}</td>
+                  <td>{{ item.cropName }}</td>
+                  <td>{{ item.estimatedQuantityQuintals }} Qtl</td>
+                  <td>
+                    <span class="badge" [ngClass]="{
+                      'badge-emerald': item.queueStatus === 'COMPLETED',
+                      'badge-warning': item.queueStatus === 'WAITING' || item.queueStatus === 'CHECKED_IN',
+                      'badge-info': item.queueStatus === 'IN_PROCESS' || item.queueStatus === 'CALLED'
+                    }">{{ item.queueStatus }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+    <!-- Centre Procurements & Capacity Summary -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Procurement Summary</h3>
+        <a routerLink="/procurement" class="btn btn-secondary btn-sm">View All →</a>
+      </div>
+
+      <div class="summary-box">
+        <div class="summary-item">
+          <span class="sum-label">Total Procured Quantity</span>
+          <span class="sum-value">{{ totalProcuredQuantity }} Quintals</span>
+        </div>
+        <div class="summary-item">
+          <span class="sum-label">Total Payment Volume</span>
+          <span class="sum-value">₹{{ totalPaymentsAmount | number }}</span>
+        </div>
+      </div>
+
+      <div class="capacity-progress mt-4">
+        <div class="progress-labels">
+          <span>Capacity Utilization</span>
+          <span>{{ totalProcuredQuantity }} / {{ centreInfo?.dailyCapacity || 100 }} Qtl</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div
+            class="progress-bar-fill"
+            [style.width.%]="((totalProcuredQuantity / (centreInfo?.dailyCapacity || 100)) * 100)"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

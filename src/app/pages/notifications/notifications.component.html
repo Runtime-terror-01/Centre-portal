@@ -1,0 +1,37 @@
+<div class="notifications-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Centre Notifications</h1>
+      <p class="page-subtitle">Operational alerts and updates for centre administrators</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Centre Alerts Log ({{ notifications.length }})</h3>
+      <button (click)="loadNotifications()" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+    </div>
+
+    @if (loading) {
+      <div class="loading-spinner">Loading notifications...</div>
+    } @else if (notifications.length === 0) {
+      <div class="empty-state">
+        <span class="empty-icon">🔔</span>
+        <p>No new notifications for this procurement centre.</p>
+      </div>
+    } @else {
+      <div class="notifications-list">
+        @for (item of notifications; track item.id) {
+          <div class="notification-item">
+            <span class="notif-icon">📌</span>
+            <div class="notif-content">
+              <h4>{{ item.title }}</h4>
+              <p>{{ item.message }}</p>
+              <span class="notif-time">{{ item.createdAt }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

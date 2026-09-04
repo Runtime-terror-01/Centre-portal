@@ -1,0 +1,85 @@
+<div class="crops-page" style="padding: 1.5rem;">
+  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1 class="page-title" style="font-size: 1.75rem; font-weight: 700; color: #111827; margin: 0;">Accepted Crops & Government MSP</h1>
+      <p class="page-subtitle" style="color: #6b7280; margin: 0.25rem 0 0 0;">Government-controlled MSP rates and centre operational intake configuration for {{ authService.assignedCentreName() || 'Karnal Main Mandi Hub' }}</p>
+    </div>
+
+    <button (click)="loadAcceptedCrops()" class="btn btn-secondary btn-sm" [disabled]="loading" style="padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer;">
+      🔄 {{ loading ? 'Refreshing...' : 'Refresh MSP Data' }}
+    </button>
+  </div>
+
+  <div class="alert alert-info mb-4" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 1rem; color: #1e40af; margin-bottom: 1.5rem;">
+    <span>🔒 <strong>Government Control Policy:</strong> MSP rates are strictly defined by the Central/State Government Admin portal and are READ-ONLY for Centre Operators. Updates to MSP in Government Admin automatically sync here upon refresh.</span>
+  </div>
+
+  <div class="card" style="background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;">
+    <div class="card-header" style="padding: 1.25rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+      <h3 class="card-title" style="font-size: 1.125rem; font-weight: 600; margin: 0;">Accepted Crops Log ({{ cropsList.length }})</h3>
+    </div>
+
+    @if (loading) {
+      <div class="loading-state" style="padding: 3rem; text-align: center;">
+        <div class="spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid #10b981; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; margin: 0 auto 1rem auto;"></div>
+        <p style="color: #6b7280; font-weight: 500;">Loading Government MSP and crop configuration...</p>
+      </div>
+    } @else if (errorMessage) {
+      <div class="alert alert-danger m-4" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1.25rem; color: #991b1b;">
+        <strong>Unable to load accepted crops data</strong>: {{ errorMessage }}
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table" style="width: 100%; border-collapse: collapse; text-align: left;">
+          <thead>
+            <tr style="background: #f9fafb; border-bottom: 1px solid #e5e7eb; color: #4b5563; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em;">
+              <th style="padding: 1rem 1.25rem;">Crop</th>
+              <th style="padding: 1rem 1.25rem;">Season</th>
+              <th style="padding: 1rem 1.25rem;">Government MSP Rate</th>
+              <th style="padding: 1rem 1.25rem;">Assigned Intake Gate</th>
+              <th style="padding: 1rem 1.25rem;">Queue Count</th>
+              <th style="padding: 1rem 1.25rem;">Procured Quantity</th>
+              <th style="padding: 1rem 1.25rem;">Intake Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (crop of cropsList; track crop.cropId) {
+              <tr style="border-bottom: 1px solid #f3f4f6;">
+                <td style="padding: 1rem 1.25rem;">
+                  <strong style="color: #111827; font-size: 1rem;">{{ crop.cropName }}</strong>
+                  <span style="display: block; font-size: 0.75rem; color: #6b7280;">{{ crop.cropCode }}</span>
+                </td>
+                <td style="padding: 1rem 1.25rem;">
+                  <span class="badge" style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">{{ crop.season }}</span>
+                </td>
+                <td style="padding: 1rem 1.25rem;">
+                  <strong style="color: #059669; font-size: 1.05rem;">₹{{ crop.govtMsp | number:'1.2-2' }}</strong> / Quintal
+                  <span style="display: block; font-size: 0.75rem; color: #9ca3af;">Government Verified</span>
+                </td>
+                <td style="padding: 1rem 1.25rem;">
+                  <span style="font-weight: 500; color: #374151;">🚪 {{ crop.assignedGateName || 'Unassigned' }}</span>
+                </td>
+                <td style="padding: 1rem 1.25rem;">
+                  <strong style="color: #2563eb;">{{ crop.queueCount }}</strong> Tokens
+                </td>
+                <td style="padding: 1rem 1.25rem;">
+                  <strong style="color: #111827;">{{ crop.totalQuantityProcuredQuintals | number:'1.1-2' }}</strong> Qtl
+                </td>
+                <td style="padding: 1rem 1.25rem;">
+                  <span class="badge" [ngClass]="{
+                    'badge-active': crop.status === 'ACTIVE',
+                    'badge-inactive': crop.status === 'INACTIVE'
+                  }" style="padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;"
+                  [style.background]="crop.status === 'ACTIVE' ? '#d1fae5' : '#fee2e2'"
+                  [style.color]="crop.status === 'ACTIVE' ? '#065f46' : '#991b1b'">
+                    {{ crop.status }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

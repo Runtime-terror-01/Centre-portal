@@ -1,0 +1,92 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="emblem-wrapper">
+        <span class="emblem-icon">🌿</span>
+      </div>
+      <h2>AGRIPROCURE</h2>
+      <p class="subtitle">Secure Administration</p>
+      <span class="portal-badge">Centre Admin Portal</span>
+    </div>
+
+    @if (errorMessage) {
+      <div class="alert alert-danger">
+        <span class="alert-icon">⚠️</span>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+
+    <form (ngSubmit)="onSubmit()" class="login-form">
+      <div class="role-selector-group">
+        <label class="form-label font-semibold">Login As:</label>
+        <div class="role-options">
+          <label class="role-option" [class.selected]="selectedRole === 'GOVERNMENT_ADMIN'">
+            <input
+              type="radio"
+              name="roleType"
+              value="GOVERNMENT_ADMIN"
+              [checked]="selectedRole === 'GOVERNMENT_ADMIN'"
+              (change)="selectRole('GOVERNMENT_ADMIN')"
+              [disabled]="loading"
+            />
+            <span class="role-title">Government Administrator</span>
+          </label>
+
+          <label class="role-option" [class.selected]="selectedRole === 'CENTRE_ADMIN'">
+            <input
+              type="radio"
+              name="roleType"
+              value="CENTRE_ADMIN"
+              [checked]="selectedRole === 'CENTRE_ADMIN'"
+              (change)="selectRole('CENTRE_ADMIN')"
+              [disabled]="loading"
+            />
+            <span class="role-title">Centre Administrator</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          [(ngModel)]="username"
+          class="form-control"
+          placeholder="Enter username"
+          required
+          [disabled]="loading"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="password"
+          class="form-control"
+          placeholder="Enter password"
+          required
+          [disabled]="loading"
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary login-btn" [disabled]="loading">
+        @if (loading) {
+          <span class="btn-spinner"></span>
+          <span>Authenticating...</span>
+        } @else {
+          <span>LOGIN</span>
+        }
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <p>Connects directly to Spring Boot Backend API</p>
+      <span class="endpoint-info">POST http://localhost:8080/api/auth/login</span>
+    </div>
+  </div>
+</div>

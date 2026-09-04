@@ -1,0 +1,88 @@
+<div class="slots-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Procurement Slots</h1>
+      <p class="page-subtitle">Slot allocations for {{ authService.assignedCentreName() || 'Centre #' + authService.assignedCentreId() }}</p>
+    </div>
+
+    <div class="date-picker-group">
+      <label for="slotDate" class="form-label">Slot Date:</label>
+      <input
+        type="date"
+        id="slotDate"
+        [(ngModel)]="selectedDate"
+        (change)="loadSlots()"
+        class="form-control date-input"
+      />
+    </div>
+  </div>
+
+  @if (statusMessage) {
+    <div class="alert alert-success">
+      <span>✅ {{ statusMessage }}</span>
+    </div>
+  }
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Booked Slots ({{ slotList.length }})</h3>
+      <button (click)="loadSlots()" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+    </div>
+
+    @if (loading) {
+      <div class="loading-spinner">Loading slot allocations...</div>
+    } @else if (slotList.length === 0) {
+      <div class="empty-state">
+        <span class="empty-icon">📅</span>
+        <p>No slot bookings found for {{ selectedDate }}.</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Slot ID</th>
+              <th>Time</th>
+              <th>Farmer ID</th>
+              <th>Crop</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (slot of slotList; track slot.id) {
+              <tr>
+                <td>#{{ slot.id }}</td>
+                <td><strong>{{ slot.slotTime }}</strong></td>
+                <td>Farmer #{{ slot.farmerId }}</td>
+                <td>{{ slot.cropName }}</td>
+                <td>{{ slot.estimatedQuantityQuintals }} Qtl</td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'badge-emerald': slot.slotStatus === 'COMPLETED' || slot.slotStatus === 'CONFIRMED',
+                    'badge-warning': slot.slotStatus === 'BOOKED' || slot.slotStatus === 'CHECKED_IN',
+                    'badge-danger': slot.slotStatus === 'CANCELLED'
+                  }">{{ slot.slotStatus }}</span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    @if (slot.slotStatus === 'BOOKED') {
+                      <button (click)="updateStatus(slot.id, 'CONFIRMED')" class="btn btn-primary btn-sm">Confirm</button>
+                    }
+                    @if (slot.slotStatus === 'CONFIRMED') {
+                      <button (click)="updateStatus(slot.id, 'CHECKED_IN')" class="btn btn-secondary btn-sm">Check In</button>
+                    }
+                    @if (slot.slotStatus !== 'CANCELLED' && slot.slotStatus !== 'COMPLETED') {
+                      <button (click)="updateStatus(slot.id, 'CANCELLED')" class="btn btn-danger btn-sm">Cancel</button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

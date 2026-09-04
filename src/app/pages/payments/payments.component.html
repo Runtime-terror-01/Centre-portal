@@ -1,0 +1,59 @@
+<div class="payments-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Centre Payment Records</h1>
+      <p class="page-subtitle">Disbursements for {{ authService.assignedCentreName() || 'Centre #' + authService.assignedCentreId() }}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Payment History ({{ payments.length }})</h3>
+      <button (click)="loadPayments()" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+    </div>
+
+    @if (loading) {
+      <div class="loading-spinner">Loading payment transactions...</div>
+    } @else if (payments.length === 0) {
+      <div class="empty-state">
+        <span class="empty-icon">💳</span>
+        <p>No payment records found for this centre.</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Payment ID</th>
+              <th>Procurement ID</th>
+              <th>Farmer Name</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Transaction Ref</th>
+              <th>Payment Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (payment of payments; track payment.id) {
+              <tr>
+                <td>#{{ payment.id }}</td>
+                <td>#{{ payment.procurementId }}</td>
+                <td><strong>{{ payment.farmerName || 'Farmer #' + payment.farmerId }}</strong></td>
+                <td><strong>₹{{ payment.amount | number }}</strong></td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'badge-emerald': payment.paymentStatus === 'COMPLETED',
+                    'badge-warning': payment.paymentStatus === 'PENDING' || payment.paymentStatus === 'PROCESSING',
+                    'badge-danger': payment.paymentStatus === 'FAILED'
+                  }">{{ payment.paymentStatus }}</span>
+                </td>
+                <td><code class="ref-code">{{ payment.transactionRef || 'N/A' }}</code></td>
+                <td>{{ payment.paymentDate || 'Pending' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

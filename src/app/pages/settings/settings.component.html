@@ -1,0 +1,98 @@
+<div class="settings-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Centre Configuration & Information</h1>
+      <p class="page-subtitle">Master Parameters for {{ authService.assignedCentreName() || 'Centre #' + authService.assignedCentreId() }}</p>
+    </div>
+    <button (click)="loadCentreDetails()" class="btn btn-secondary btn-sm">
+      <span>🔄</span> Refresh Configuration
+    </button>
+  </div>
+
+  <div class="alert alert-info mb-4" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 1rem; color: #1e40af;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <span style="font-size: 1.25rem;">🏛️</span>
+      <div>
+        <strong style="display: block; font-size: 0.95rem;">Managed by Government Administration</strong>
+        <span style="font-size: 0.85rem;">Operating capacity, status, hours, and location details are master-controlled by Government Admin. Centre operators cannot modify these parameters.</span>
+      </div>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state card">
+      <div class="spinner"></div>
+      <p>Loading master centre parameters from backend...</p>
+    </div>
+  } @else if (error) {
+    <div class="alert alert-danger">
+      <span>⚠️ {{ error }}</span>
+    </div>
+  } @else if (centre) {
+    <div class="grid-cols-2 gap-4">
+      <div class="card settings-card">
+        <h3 class="card-title mb-4">Master Identity</h3>
+
+        <div class="form-group mb-3">
+          <label class="form-label">Centre Code</label>
+          <input type="text" [value]="centre.centreCode" class="form-control" disabled readonly />
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="form-label">Centre Name</label>
+          <input type="text" [value]="centre.centreName" class="form-control" disabled readonly />
+        </div>
+
+        <div class="grid-cols-2 gap-3 mb-3">
+          <div class="form-group">
+            <label class="form-label">District</label>
+            <input type="text" [value]="centre.district" class="form-control" disabled readonly />
+          </div>
+          <div class="form-group">
+            <label class="form-label">State</label>
+            <input type="text" [value]="centre.state" class="form-control" disabled readonly />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Location Address</label>
+          <input type="text" [value]="centre.address || 'N/A'" class="form-control" disabled readonly />
+        </div>
+      </div>
+
+      <div class="card settings-card">
+        <h3 class="card-title mb-4">Government Operating Rules</h3>
+
+        <div class="form-group mb-3">
+          <label class="form-label">Current Operational Status</label>
+          <div class="status-badge-container">
+            <span class="badge"
+                  [class.badge-success]="centre.currentStatus === 'OPEN'"
+                  [class.badge-danger]="centre.currentStatus === 'CLOSED' || centre.currentStatus === 'SUSPENDED'"
+                  [class.badge-warning]="centre.currentStatus === 'MAINTENANCE'"
+                  style="font-size: 1rem; padding: 0.5rem 1rem;">
+              {{ centre.currentStatus }}
+            </span>
+          </div>
+          <span class="form-hint mt-1">Set by Government Administration</span>
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="form-label">Daily Intake Capacity</label>
+          <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">
+            {{ centre.dailyCapacity || 100 }} Quintals / day
+          </div>
+          <span class="form-hint">Government allocated maximum daily procurement intake.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Operating Schedule</label>
+          <div style="font-size: 1.1rem; font-weight: 600; color: #374151;">
+            ⏰ {{ centre.operatingStart || '08:00' }} — {{ centre.operatingEnd || '18:00' }}
+          </div>
+          <span class="form-hint">Official operational hours for token processing.</span>
+        </div>
+      </div>
+    </div>
+  }
+</div>

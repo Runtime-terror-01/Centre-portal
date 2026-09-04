@@ -1,0 +1,72 @@
+<div class="gates-page" style="padding: 1.5rem;">
+  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1 class="page-title" style="font-size: 1.75rem; font-weight: 700; color: #111827; margin: 0;">Gate Management</h1>
+      <p class="page-subtitle" style="color: #6b7280; margin: 0.25rem 0 0 0;">Configure physical entry gates, assign accepted crops, and monitor queue traffic for {{ authService.assignedCentreName() || 'Karnal Main Mandi Hub' }}</p>
+    </div>
+
+    <button (click)="loadGatesData()" class="btn btn-secondary btn-sm" [disabled]="loading" style="padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer;">
+      🔄 {{ loading ? 'Refreshing...' : 'Refresh Gates' }}
+    </button>
+  </div>
+
+  @if (statusMessage) {
+    <div class="alert alert-success mb-4" style="background: #d1fae5; border: 1px solid #10b981; color: #065f46; padding: 1rem; border-radius: 8px; font-weight: 500; margin-bottom: 1.5rem;">
+      ✅ {{ statusMessage }}
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading-state" style="padding: 3rem; text-align: center;">
+      <div class="spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid #10b981; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; margin: 0 auto 1rem auto;"></div>
+      <p style="color: #6b7280; font-weight: 500;">Loading gate configuration...</p>
+    </div>
+  } @else if (errorMessage) {
+    <div class="alert alert-danger" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1.25rem; color: #991b1b;">
+      <strong>Unable to load gate management data</strong>: {{ errorMessage }}
+    </div>
+  } @else {
+    <div class="gates-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+      @for (gate of gatesList; track gate.id) {
+        <div class="gate-card" style="background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <div>
+                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #111827;">{{ gate.gateName }}</h3>
+                <span style="font-size: 0.75rem; color: #6b7280; font-weight: 600;">Code: {{ gate.gateNumber }}</span>
+              </div>
+              <span class="badge" [style.background]="gate.status === 'OPEN' ? '#d1fae5' : '#fee2e2'" [style.color]="gate.status === 'OPEN' ? '#065f46' : '#991b1b'" style="padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 700; font-size: 0.75rem;">
+                {{ gate.status }}
+              </span>
+            </div>
+
+            <div style="background: #f9fafb; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+              <div style="font-size: 0.875rem; color: #4b5563; margin-bottom: 0.5rem;">
+                <strong>Assigned Crop:</strong> <span style="color: #059669; font-weight: 700;">{{ gate.assignedCropName || 'None' }}</span>
+              </div>
+              <div style="font-size: 0.875rem; color: #4b5563;">
+                <strong>Active Queue:</strong> <span style="color: #2563eb; font-weight: 700;">{{ gate.queueCount || 0 }} Tokens</span>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.375rem;">Assign Crop to Gate:</label>
+              <select #cropSelect (change)="assignCrop(gate.id, cropSelect.value)" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #d1d5db;">
+                <option value="">-- Select Crop --</option>
+                @for (crop of cropsList; track crop.cropId) {
+                  <option [value]="crop.cropId" [selected]="crop.cropId === gate.assignedCropId">{{ crop.cropName }} (MSP ₹{{ crop.govtMsp }})</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 1rem; border-top: 1px solid #f3f4f6; padding-top: 1rem;">
+            <button (click)="toggleGateStatus(gate.id, gate.status)" [style.background]="gate.status === 'OPEN' ? '#ef4444' : '#10b981'" style="color: #ffffff; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer;">
+              {{ gate.status === 'OPEN' ? '🔒 Close Gate' : '🔓 Open Gate' }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

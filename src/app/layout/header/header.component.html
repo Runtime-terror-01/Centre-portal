@@ -1,0 +1,33 @@
+<header class="top-header">
+  <div class="header-left">
+    <div class="brand-logo">
+      <span class="logo-icon">🌿</span>
+      <div class="brand-info">
+        <span class="brand-name">AgriProcure</span>
+        <span class="portal-badge">Centre Admin Portal</span>
+      </div>
+    </div>
+    
+    <div class="centre-chip">
+      <span class="chip-icon">🏛️</span>
+      <span class="chip-text">{{ centreDisplay }}</span>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="user-profile">
+      <div class="avatar">
+        {{ (authService.currentUser() || 'CA').substring(0, 2).toUpperCase() }}
+      </div>
+      <div class="user-details">
+        <span class="username">{{ authService.currentUser() || 'Centre Admin' }}</span>
+        <span class="role-badge">ROLE_CENTRE_ADMIN</span>
+      </div>
+    </div>
+
+    <button (click)="logout()" class="btn btn-secondary logout-btn" title="Sign out of Centre Admin Portal">
+      <span>🚪</span>
+      <span>Logout</span>
+    </button>
+  </div>
+</header>

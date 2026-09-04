@@ -1,0 +1,17 @@
+<div class="denied-page">
+  <div class="denied-card">
+    <div class="error-badge">403 FORBIDDEN</div>
+    <span class="denied-icon">🚫</span>
+    <h2>Access Denied</h2>
+    <p>You do not have administrative authorization to access Government Administration features or restricted pages.</p>
+
+    <div class="details-box">
+      <p><strong>Security Policy Violation:</strong> Centre Administrators are restricted to assigned centre operations and cannot view or modify government-level administration data.</p>
+    </div>
+
+    <div class="actions">
+      <a routerLink="/dashboard" class="btn btn-primary">Return to Centre Dashboard</a>
+      <button (click)="authService.logout()" class="btn btn-secondary">Sign Out</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,117 @@
+<div class="queue-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Live Queue Management</h1>
+      <p class="page-subtitle">Token queue control for {{ authService.assignedCentreName() || 'Centre #' + authService.assignedCentreId() }}</p>
+    </div>
+
+    <div class="date-picker-group">
+      <label for="queueDate" class="form-label">Queue Date:</label>
+      <input
+        type="date"
+        id="queueDate"
+        [(ngModel)]="selectedDate"
+        (change)="loadQueue()"
+        class="form-control date-input"
+      />
+    </div>
+  </div>
+
+  @if (statusMessage) {
+    <div class="alert alert-success">
+      <span>✅ {{ statusMessage }}</span>
+    </div>
+  }
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        Token Queue
+        @if (!loading && !errorMessage) {
+          ({{ queueList.length }})
+        }
+      </h3>
+      <button (click)="loadQueue()" class="btn btn-secondary btn-sm" [disabled]="loading">
+        <span>🔄</span> {{ loading ? 'Refreshing...' : 'Refresh' }}
+      </button>
+    </div>
+
+    @if (loading) {
+      <div class="loading-state card-body" style="padding: 2.5rem; text-align: center;">
+        <div class="spinner mb-3" style="border: 3px solid #f3f3f3; border-top: 3px solid var(--primary-color); border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+        <p style="color: #6b7280; font-weight: 500;">Loading queue data for {{ selectedDate }}...</p>
+      </div>
+    } @else if (errorMessage) {
+      <div class="alert alert-danger m-4" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1.25rem; color: #991b1b; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <strong style="display: block; font-size: 1rem;">Unable to load token queue data</strong>
+          <span style="font-size: 0.875rem;">{{ errorMessage }}</span>
+        </div>
+        <button (click)="loadQueue()" class="btn btn-secondary btn-sm">🔄 Retry</button>
+      </div>
+    } @else if (queueList.length === 0) {
+      <div class="empty-state" style="padding: 3rem; text-align: center;">
+        <span class="empty-icon" style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">🔢</span>
+        <p style="color: #4b5563; font-weight: 500; margin: 0;">No tokens in queue for {{ selectedDate }}.</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Token #</th>
+              <th>Time Slot</th>
+              <th>Farmer Name</th>
+              <th>Crop</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of queueList; track item.id) {
+              <tr>
+                <td><strong class="token-num">{{ item.tokenNumber }}</strong></td>
+                <td>{{ item.tokenSlotTime }}</td>
+                <td>
+                  <div class="farmer-cell">
+                    <strong>{{ item.farmerName }}</strong>
+                    <span class="reg-no">{{ item.farmerRegistrationNo }}</span>
+                  </div>
+                </td>
+                <td>{{ item.cropName }}</td>
+                <td>{{ item.estimatedQuantityQuintals }} Qtl</td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'badge-emerald': item.queueStatus === 'COMPLETED',
+                    'badge-warning': item.queueStatus === 'WAITING' || item.queueStatus === 'CHECKED_IN' || item.queueStatus === 'SCHEDULED',
+                    'badge-info': item.queueStatus === 'IN_PROCESS' || item.queueStatus === 'CALLED',
+                    'badge-danger': item.queueStatus === 'SKIPPED' || item.queueStatus === 'CANCELLED'
+                  }">{{ item.queueStatus }}</span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    @if (item.queueStatus === 'SCHEDULED' || item.queueStatus === 'WAITING') {
+                      <button (click)="checkIn(item.id)" class="btn btn-secondary btn-sm" title="Check in farmer">Check In</button>
+                      <button (click)="callNext(item.id)" class="btn btn-primary btn-sm" title="Call token">Call</button>
+                    }
+                    @if (item.queueStatus === 'CALLED' || item.queueStatus === 'CHECKED_IN') {
+                      <button (click)="startProcess(item.id)" class="btn btn-primary btn-sm">Process</button>
+                    }
+                    @if (item.queueStatus === 'IN_PROCESS') {
+                      <button (click)="complete(item.id)" class="btn btn-primary btn-sm">Complete</button>
+                    }
+                    @if (item.queueStatus !== 'COMPLETED' && item.queueStatus !== 'CANCELLED') {
+                      <button (click)="skip(item.id)" class="btn btn-secondary btn-sm">Skip</button>
+                      <button (click)="cancel(item.id)" class="btn btn-danger btn-sm">Cancel</button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

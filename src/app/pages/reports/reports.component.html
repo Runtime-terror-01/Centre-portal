@@ -1,0 +1,42 @@
+<div class="reports-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Centre Analytical Reports</h1>
+      <p class="page-subtitle">Performance report for {{ authService.assignedCentreName() || 'Centre #' + authService.assignedCentreId() }}</p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-spinner">Generating centre report...</div>
+  } @else {
+    <div class="reports-grid">
+      <div class="card report-card">
+        <span class="report-icon">📊</span>
+        <h3>Procurement Summary</h3>
+        <p class="report-metric">{{ procurementCount }} Transactions</p>
+        <p class="report-sub">Total Quantity: {{ totalQuantity }} Quintals</p>
+      </div>
+
+      <div class="card report-card">
+        <span class="report-icon">💰</span>
+        <h3>Financial Valuation</h3>
+        <p class="report-metric">₹{{ totalAmount | number }}</p>
+        <p class="report-sub">Disbursed via Direct Bank Transfer</p>
+      </div>
+
+      <div class="card report-card">
+        <span class="report-icon">👨‍🌾</span>
+        <h3>Registered Farmers</h3>
+        <p class="report-metric">{{ farmersCount }} Farmers</p>
+        <p class="report-sub">Associated with centre</p>
+      </div>
+
+      <div class="card report-card">
+        <span class="report-icon">⚡</span>
+        <h3>Centre Capacity Efficiency</h3>
+        <p class="report-metric">{{ capacityUtilization }}%</p>
+        <p class="report-sub">Daily target utilization rate</p>
+      </div>
+    </div>
+  }
+</div>

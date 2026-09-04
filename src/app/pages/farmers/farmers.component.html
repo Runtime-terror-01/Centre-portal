@@ -1,0 +1,59 @@
+<div class="farmers-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Registered Farmers</h1>
+      <p class="page-subtitle">Farmers registered under {{ authService.assignedCentreName() || 'Centre #' + authService.assignedCentreId() }}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Centre Farmers Directory ({{ farmers.length }})</h3>
+      <button (click)="loadFarmers()" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+    </div>
+
+    @if (loading) {
+      <div class="loading-spinner">Loading farmers directory...</div>
+    } @else if (farmers.length === 0) {
+      <div class="empty-state">
+        <span class="empty-icon">🚜</span>
+        <p>No registered farmers found for this procurement centre.</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Reg No</th>
+              <th>Full Name</th>
+              <th>Mobile</th>
+              <th>State / District</th>
+              <th>Village</th>
+              <th>Land Area</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (farmer of farmers; track farmer.id) {
+              <tr>
+                <td><strong class="reg-no">{{ farmer.farmerRegistrationNo }}</strong></td>
+                <td><strong>{{ farmer.fullName }}</strong></td>
+                <td>{{ farmer.mobileNumber }}</td>
+                <td>{{ farmer.district }}, {{ farmer.state }}</td>
+                <td>{{ farmer.village }}</td>
+                <td>{{ farmer.landAreaAcres }} Acres</td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'badge-emerald': farmer.accountStatus === 'ACTIVE' || farmer.accountStatus === 'APPROVED',
+                    'badge-warning': farmer.accountStatus === 'PENDING',
+                    'badge-danger': farmer.accountStatus === 'BLOCKED' || farmer.accountStatus === 'REJECTED'
+                  }">{{ farmer.accountStatus }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

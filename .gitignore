@@ -1,0 +1,30 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# dependencies
+/node_modules
+
+# profiling coverage
+/coverage
+
+# IDEs and editors
+/.idea
+/.project
+/.classpath
+/.cproject
+/.settings
+/.vscode/*
+!/.vscode/tasks.json
+!/.vscode/launch.json
+!/.vscode/extensions.json
+*.sublime-workspace
+
+# Angular / OS
+/.angular
+.DS_Store
+Thumbs.db
